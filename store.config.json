@@ -1,0 +1,29 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "copyright": "© 2026 Imogen Labs",
+    "version": "1.0.0",
+    "categories": ["UTILITIES", "PRODUCTIVITY"],
+    "info": {
+      "en-US": {
+        "title": "HomelabARR Mobile",
+        "subtitle": "Manage Your Homelab Anywhere",
+        "description": "HomelabARR Mobile puts your entire self-hosted Docker stack in your pocket.\n\nConnect to your HomelabARR Community Edition dashboard from anywhere — your couch, your office, or halfway across the world via Tailscale or Cloudflare Tunnel. Browse 120+ validated container templates, deploy new services with one tap, and monitor everything that's running.\n\nWhat you get:\n\n• Full access to your HomelabARR CE dashboard — dark mode included\n• Browse and deploy from 120+ Docker container templates across 11 categories\n• Monitor running containers with real-time status\n• One-tap deploy for media servers, downloaders, monitoring tools, AI/ML apps, and more\n• Works on local network, Tailscale, or any public URL\n• Native dark/light mode that follows your system preference\n• Pull-to-refresh, back navigation, and haptic feedback\n• Secure — your server URL and API key stay on your device\n\nBuilt for homelabbers who want:\n\n• Plex, Jellyfin, Sonarr, Radarr, Prowlarr at your fingertips\n• Quick container deploys without opening a laptop\n• A clean mobile interface instead of zooming into a desktop site\n• Support for local IPs (192.168.x.x), Tailscale, and public domains\n\nCategories include:\nMedia & Entertainment · Downloads & Automation · Monitoring & Analytics · Virtual Desktops · Backup & Storage · System & Utilities · Self-hosted · AI & Machine Learning\n\nHomelabARR CE is free and open source (MIT license). This app is a premium convenience wrapper — compiled, signed, auto-updated through the App Store. Power users can always build from source at github.com/smashingtags/homelabarr-mobile.\n\nBuilt by Imogen Labs AI.",
+        "keywords": ["homelab", "docker", "self-hosted", "plex", "sonarr", "radarr", "containers", "server", "monitoring", "deploy"],
+        "marketingUrl": "https://homelabarr.com",
+        "supportUrl": "https://homelabarr.com",
+        "privacyPolicyUrl": "https://homelabarr.com/privacy",
+        "releaseNotes": "Initial release! Connect to your HomelabARR CE instance and manage your homelab from your phone."
+      }
+    },
+    "review": {
+      "firstName": "Michael",
+      "lastName": "Ashley",
+      "email": "michael@mjashley.com",
+      "phone": "+1 678-727-8208",
+      "demoUsername": "admin",
+      "demoPassword": "admin",
+      "notes": "This app is a WebView wrapper for HomelabARR Community Edition (https://github.com/smashingtags/homelabarr-ce), an open-source Docker container management dashboard. The app connects to a user's self-hosted server via URL. For review, use the demo server: https://ce-demo.homelabarr.com (login: admin / admin)."
+    }
+  }
+}
