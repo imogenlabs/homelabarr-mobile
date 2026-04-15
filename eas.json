@@ -23,5 +23,14 @@
     "production": {
       "autoIncrement": true
     }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "justin108@gmail.com",
+        "ascAppId": "6761244772",
+        "appleTeamId": "3FAA5XG574"
+      }
+    }
   }
 }

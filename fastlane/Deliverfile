@@ -1,0 +1,27 @@
+app_identifier "com.imogenlabs.homelabarr.mobile"
+team_id "3FAA5XG574"
+username "justin108@gmail.com"
+
+# Skip everything except screenshots
+skip_binary_upload true
+skip_metadata true
+skip_app_version_update true
+
+# Don't run precheck (would need additional auth)
+run_precheck_before_submit false
+
+# Force submission without confirmation prompts
+force true
+overwrite_screenshots true
+
+# Where the screenshots live
+screenshots_path "./fastlane/screenshots"
+
+# App Store version we're targeting
+app_version "1.0.0"
+
+# Don't trigger phased release confirmation
+phased_release false
+
+# Don't auto-release after approval
+automatic_release false
