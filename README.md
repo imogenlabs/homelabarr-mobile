@@ -1,8 +1,15 @@
 # HomelabARR Mobile Companion
 
-> Manage your HomelabARR CE instance from your phone.
+> Manage your HomelabARR CE instance from your phone or tablet.
+
+[![Download on the App Store](https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg)](https://apps.apple.com/us/app/homelabarr-mobile/id6761244772)
 
 Expo SDK 55 WebView wrapper around the existing HomelabARR CE dashboard (which is already mobile-responsive).
+
+## Download
+
+- **iOS**: [App Store](https://apps.apple.com/us/app/homelabarr-mobile/id6761244772) (live)
+- **Android**: Coming soon
 
 ## Features
 
@@ -16,7 +23,21 @@ Expo SDK 55 WebView wrapper around the existing HomelabARR CE dashboard (which i
 - **Haptic feedback** — on connect/disconnect actions
 - **NSAllowsLocalNetworking** — works with local IPs (192.168.x.x, Tailscale, etc.)
 
-## Quick Start
+## Setup
+
+1. Download from the [App Store](https://apps.apple.com/us/app/homelabarr-mobile/id6761244772)
+2. Enter your HomelabARR CE server URL (e.g. `http://192.168.1.195:8084`)
+3. Optionally enter your API key for authenticated access
+4. Tap Connect
+
+## Supported Server Connections
+
+- **Local IP**: `http://192.168.1.195:8084`
+- **Tailscale**: `https://homelabarr.tailnet-name.ts.net`
+- **Public domain**: `https://homelabarr.example.com`
+- **Cloudflare Tunnel**: Any HTTPS URL
+
+## Development
 
 ```bash
 cd homelabarr-mobile
@@ -26,7 +47,7 @@ npx expo start
 
 Scan the QR code with Expo Go on your phone.
 
-## Build for App Store / Google Play
+## Build
 
 ```bash
 # Install EAS CLI
@@ -44,15 +65,16 @@ eas build --platform android
 
 Single-file app (`App.tsx`). No router needed — the WebView handles all navigation internally.
 
-The CE dashboard is already fully responsive, so this is intentionally thin: URL setup → WebView → done.
+The CE dashboard is already fully responsive, so this is intentionally thin: URL setup, WebView, done.
 
-## Supported Server Connections
+## Related
 
-- **Local IP**: `http://192.168.1.195:3000`
-- **Tailscale**: `https://homelabarr.tailnet-name.ts.net`
-- **Public domain**: `https://homelabarr.example.com`
-- **Cloudflare Tunnel**: Any HTTPS URL
+| Repo | Description |
+|------|-------------|
+| [smashingtags/eightly](https://github.com/smashingtags/eightly) | HomelabARR CE / Eight.ly Container Edition |
+| [smashingtags/eightly-os](https://github.com/smashingtags/eightly-os) | Eight.ly OS (Professional + OS editions) |
+| [smashingtags/eightly-os-mobile](https://github.com/smashingtags/eightly-os-mobile) | Eight.ly OS tablet companion app |
 
 ---
 
-Built by [Imogen Labs](https://imogenlabs.ai) 🐙
+Built by [Imogen Labs](https://imogenlabs.ai)
