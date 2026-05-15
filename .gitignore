@@ -39,3 +39,9 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Internal docs
+CLAUDE.md
+APPSTORE-READY.md
+APP-STORE-LISTING.md
+store.config.json
