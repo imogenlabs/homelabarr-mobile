@@ -61,6 +61,10 @@ eas build --platform ios
 eas build --platform android
 ```
 
+## Releases in Jira
+
+Whoever cuts a release records it in Jira with `keen release sync --repo-path . --project HLMOB --tag <tag> --head origin/main --tag-pattern '^v?\d+\.\d+\.\d+(-beta)?$'` (EOS-2718).
+
 ## Architecture
 
 Single-file app (`App.tsx`). No router needed — the WebView handles all navigation internally.
