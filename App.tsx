@@ -24,6 +24,19 @@ import * as Haptics from 'expo-haptics';
 const STORAGE_KEY = '@homelabarr_server';
 const API_KEY_STORAGE = '@homelabarr_apikey';
 
+// Scheme, host and port, normalised the way the WebView reports URLs.
+// React Native's URL class works these out with loose regexes, so this does it
+// by hand. A URL carrying user info is never treated as the server.
+function originOf(url: string): string | null {
+  const match = url.match(/^(https?):\/\/([^/?#\\]*)/i);
+  if (!match || match[2].includes('@')) return null;
+  const scheme = match[1].toLowerCase();
+  const defaultPort = scheme === 'https' ? ':443' : ':80';
+  let authority = match[2].toLowerCase();
+  if (authority.endsWith(defaultPort)) authority = authority.slice(0, -defaultPort.length);
+  return authority ? `${scheme}://${authority}` : null;
+}
+
 // ─── Theme ───────────────────────────────────────────────────────────────
 const themes = {
   dark: {
@@ -443,10 +456,10 @@ export default function App() {
           )}
           onShouldStartLoadWithRequest={(request) => {
             // Open external links in system browser
+            const origin = originOf(request.url);
             if (
-              request.url.startsWith(serverUrl) ||
-              request.url.startsWith('about:') ||
-              request.url === 'about:blank'
+              (origin !== null && origin === originOf(serverUrl)) ||
+              request.url.startsWith('about:')
             ) {
               return true;
             }
