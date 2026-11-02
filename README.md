@@ -6,6 +6,20 @@
 
 Expo SDK 58 WebView wrapper around the existing HomelabARR CE dashboard (which is already mobile-responsive).
 
+## See it work
+
+[![HomelabARR Mobile connecting to the demo server, signing in, searching, opening a deploy dialog and listing deployed apps](docs/media/demo.gif)](docs/media/demo.mp4)
+
+A minute in the app against the public demo, [demo.homelabarr.com](https://demo.homelabarr.com): connect, sign in, search, deploy, see what is running. [Watch the full-quality MP4](docs/media/demo.mp4).
+
+| Connect | Catalog | Search | Deploy | Running apps |
+|---|---|---|---|---|
+| <img src="fastlane/screenshots/en-US/iPhone69-1-setup.png" width="160" alt="Setup screen with server URL and API key fields"> | <img src="fastlane/screenshots/en-US/iPhone69-2-catalog.png" width="160" alt="All 117 apps in the catalog"> | <img src="fastlane/screenshots/en-US/iPhone69-3-search.png" width="160" alt="Search results for plex"> | <img src="fastlane/screenshots/en-US/iPhone69-5-deploy.png" width="160" alt="Deploy dialog for Plex"> | <img src="fastlane/screenshots/en-US/iPhone69-6-deployed.png" width="160" alt="Deployed apps with their status"> |
+
+On iPad the dashboard uses the full width:
+
+<img src="fastlane/screenshots/en-US/iPadPro13-2-catalog.png" width="560" alt="The catalog on an iPad Pro 13-inch">
+
 ## Current version
 
 1.1.0. What changed is in `fastlane/metadata/en-US/release_notes.txt`.
@@ -13,12 +27,13 @@ Expo SDK 58 WebView wrapper around the existing HomelabARR CE dashboard (which i
 ## Download
 
 - **iOS**: [App Store](https://apps.apple.com/us/app/homelabarr-mobile/id6761244772) (live)
-- **Android**: Coming soon
+- **Android**: not released yet
 
 ## Features
 
 - **First-launch setup** — enter server URL + optional API key
-- **AsyncStorage persistence** — remembers your server across launches
+- **Remembers your server** — across launches; the API key is kept in the iOS keychain
+- **Stays on your server** — only pages on your server open in the app, everything else opens in Safari
 - **Dark/light mode** — follows system theme, syncs with CE dashboard
 - **Pull-to-refresh** — swipe down to reload
 - **Back navigation** — swipe gesture + header back button
@@ -85,7 +100,7 @@ Set the status bar first: `xcrun simctl status_bar <udid> override --time 9:41 -
 
 ## Releases in Jira
 
-Whoever cuts a release records it in Jira with `keen release sync --repo-path . --project HLMOB --tag <tag> --head origin/main --tag-pattern '^v?\d+\.\d+\.\d+(-beta)?$'` (EOS-2718).
+Whoever cuts a release records it in Jira with `keen release sync --repo-path . --project HLMOB --tag <tag> --head origin/main --tag-pattern '^v?\d+\.\d+\.\d+(-beta)?$'`.
 
 ## Architecture
 
@@ -97,9 +112,8 @@ The CE dashboard is already fully responsive, so this is intentionally thin: URL
 
 | Repo | Description |
 |------|-------------|
-| [imogenlabs/eightly](https://github.com/imogenlabs/eightly) | HomelabARR CE / Eight.ly Container Edition |
-| [imogenlabs/eightly-os](https://github.com/imogenlabs/eightly-os) | Eight.ly OS (Professional + OS editions) |
-| [imogenlabs/eightly-os-mobile](https://github.com/imogenlabs/eightly-os-mobile) | Eight.ly OS tablet companion app |
+| [imogenlabs/homelabarr-ce](https://github.com/imogenlabs/homelabarr-ce) | HomelabARR CE, the self-hosted dashboard this app opens |
+| [eight.ly](https://eight.ly) | Eight.ly OS, the full homelab operating system from the same team |
 
 ---
 
