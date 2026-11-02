@@ -55,17 +55,22 @@ Scan the QR code with Expo Go on your phone.
 
 ## Build
 
+App Store builds are made on the Development iMac, never on the Mac mini. 1.1.0 was built with Xcode and an App Store Connect API key, no Expo account needed:
+
 ```bash
-# Install EAS CLI
-npm install -g eas-cli
-
-# Configure
-eas build:configure
-
-# Build
-eas build --platform ios
-eas build --platform android
+npx expo prebuild --platform ios --clean
+xcodebuild -workspace ios/HomelabARRMobile.xcworkspace -scheme HomelabARRMobile \
+  -configuration Release -destination generic/platform=iOS -archivePath build/HomelabARR.xcarchive \
+  DEVELOPMENT_TEAM=3FAA5XG574 CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates \
+  -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_<id>.p8 \
+  -authenticationKeyID <id> -authenticationKeyIssuerID <issuer> archive
+xcodebuild -exportArchive -archivePath build/HomelabARR.xcarchive -exportPath build/export \
+  -exportOptionsPlist ExportOptions.plist -allowProvisioningUpdates <same three key flags>
 ```
+
+`ExportOptions.plist` sets `method` to `app-store-connect` and `destination` to `upload`, so the export goes straight to App Store Connect. Over ssh the login keychain is locked and codesign fails; run both commands in the logged-in session with `sudo launchctl asuser <uid> sudo -u <user> <script>`.
+
+EAS still works once someone is signed in (`eas login`, then `eas build --platform ios`).
 
 ## Store screenshots
 
