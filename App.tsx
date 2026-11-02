@@ -300,24 +300,29 @@ export default function App() {
   // Inject API key header and theme preference
   const injectedJS = `
     (function() {
-      // Intercept all fetch calls to inject API key
+      // Add the API key to every fetch the dashboard makes to its own server,
+      // whether it passes a string, a URL or a Request. The caller's init
+      // object is copied, never changed.
       window.__HOMELABARR_API_KEY = ${JSON.stringify(apiKey)};
       if (window.__HOMELABARR_API_KEY && !window.__fetchPatched) {
-        const originalFetch = window.fetch;
-        window.fetch = function(url, options = {}) {
-          if (typeof url === 'string' && (url.startsWith('/') || url.startsWith(window.location.origin))) {
-            options.headers = options.headers || {};
-            if (options.headers instanceof Headers) {
-              if (!options.headers.has('Authorization')) {
-                options.headers.set('Authorization', 'Bearer ' + window.__HOMELABARR_API_KEY);
-              }
-            } else {
-              if (!options.headers['Authorization']) {
-                options.headers['Authorization'] = 'Bearer ' + window.__HOMELABARR_API_KEY;
-              }
-            }
+        const originalFetch = window.fetch.bind(window);
+        window.fetch = function(input, init) {
+          const isRequest = input instanceof Request;
+          let target;
+          try {
+            target = new URL(isRequest ? input.url : String(input), window.location.href);
+          } catch (e) {
+            return originalFetch(input, init);
           }
-          return originalFetch.call(this, url, options);
+          if (target.origin !== window.location.origin) return originalFetch(input, init);
+
+          const headers = new Headers(
+            init && init.headers !== undefined ? init.headers : isRequest ? input.headers : undefined
+          );
+          if (!headers.has('Authorization')) {
+            headers.set('Authorization', 'Bearer ' + window.__HOMELABARR_API_KEY);
+          }
+          return originalFetch(input, Object.assign({}, init, { headers }));
         };
         window.__fetchPatched = true;
       }
@@ -481,10 +486,6 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 24,
-    marginBottom: 12,
-  },
-  logoEmoji: {
-    fontSize: 64,
     marginBottom: 12,
   },
   title: {
