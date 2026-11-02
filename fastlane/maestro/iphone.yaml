@@ -1,0 +1,52 @@
+appId: com.imogenlabs.homelabarr.mobile
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Connect"
+    timeout: 20000
+- takeScreenshot: ${OUT}/1-setup
+- tapOn: "https://homelabarr.example.com"
+- inputText: "https://demo.homelabarr.com"
+- tapOn: "Connect"
+- extendedWaitUntil:
+    visible: "Sign In|Search apps.*"
+    timeout: 30000
+- runFlow:
+    when:
+      visible: "Enter your username"
+    commands:
+      - tapOn: "Enter your username"
+      - inputText: "admin"
+      - tapOn: "Enter your password"
+      - inputText: "admin"
+      - pressKey: Enter
+      - extendedWaitUntil:
+          notVisible: "Login Successful"
+          timeout: 20000
+- extendedWaitUntil:
+    visible: "Search apps.*"
+    timeout: 30000
+- swipe:
+    direction: DOWN
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/2-catalog
+- tapOn: "Search apps.*"
+- inputText: "plex"
+- tapOn: "Done"
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/3-search
+- tapOn:
+    text: "Deploy"
+    index: 0
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/5-deploy
+- tapOn: "Cancel"
+- tapOn: "Clear search"
+- waitForAnimationToEnd
+- tapOn: "Media & Entertainment"
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/4-category
+- tapOn: "Deployed Apps"
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/6-deployed

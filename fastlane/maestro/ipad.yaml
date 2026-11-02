@@ -1,0 +1,84 @@
+appId: com.imogenlabs.homelabarr.mobile
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Connect"
+    timeout: 20000
+- takeScreenshot: ${OUT}/1-setup
+- tapOn: "https://homelabarr.example.com"
+- inputText: "https://demo.homelabarr.com"
+- pressKey: Enter
+- waitForAnimationToEnd
+- tapOn: "Connect"
+- extendedWaitUntil:
+    visible: "Sign In|Search apps.*"
+    timeout: 30000
+- runFlow:
+    when:
+      visible: "Enter your username"
+    commands:
+      - tapOn: "Enter your username"
+      - inputText: "admin"
+      - tapOn: "Enter your password"
+      - inputText: "admin"
+      - pressKey: Enter
+      - extendedWaitUntil:
+          notVisible: "Login Successful"
+          timeout: 20000
+- extendedWaitUntil:
+    visible: "Search apps.*"
+    timeout: 30000
+- tapOn:
+    point: "50%,1%"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/2-catalog
+- tapOn: "Search apps.*"
+- inputText: "plex"
+- hideKeyboard
+- waitForAnimationToEnd
+- tapOn:
+    point: "50%,1%"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/3-search
+- tapOn:
+    point: "50%,1%"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- tapOn:
+    text: "Deploy"
+    index: 0
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/5-deploy
+- tapOn: "Cancel"
+- waitForAnimationToEnd
+- tapOn:
+    point: "50%,1%"
+- waitForAnimationToEnd
+- tapOn:
+    text: "Clear search"
+    optional: true
+- runFlow:
+    when:
+      visible: "plex"
+    commands:
+      - tapOn: "plex"
+      - eraseText: 10
+      - hideKeyboard
+- waitForAnimationToEnd
+- tapOn: "Media & Entertainment"
+- waitForAnimationToEnd
+- tapOn:
+    point: "50%,1%"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/4-category
+- tapOn: "Deployed Apps"
+- waitForAnimationToEnd
+- tapOn:
+    point: "50%,1%"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/6-deployed

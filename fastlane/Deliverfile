@@ -18,7 +18,7 @@ overwrite_screenshots true
 screenshots_path "./fastlane/screenshots"
 
 # App Store version we're targeting
-app_version "1.0.0"
+app_version "1.1.0"
 
 # Don't trigger phased release confirmation
 phased_release false
