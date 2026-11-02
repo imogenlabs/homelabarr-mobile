@@ -17,12 +17,44 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { WebView } from 'react-native-webview';
 import * as Haptics from 'expo-haptics';
 
 // ─── Constants ───────────────────────────────────────────────────────────
 const STORAGE_KEY = '@homelabarr_server';
-const API_KEY_STORAGE = '@homelabarr_apikey';
+// The API key lives in the keychain. Older builds kept it in AsyncStorage
+// under the legacy key, so it is moved across on first launch.
+const API_KEY_STORAGE = 'homelabarr_apikey';
+const LEGACY_API_KEY_STORAGE = '@homelabarr_apikey';
+
+async function loadApiKey(): Promise<string> {
+  const legacyKey = await AsyncStorage.getItem(LEGACY_API_KEY_STORAGE);
+  if (legacyKey !== null) {
+    if (legacyKey) await SecureStore.setItemAsync(API_KEY_STORAGE, legacyKey);
+    await AsyncStorage.removeItem(LEGACY_API_KEY_STORAGE);
+    return legacyKey;
+  }
+  return (await SecureStore.getItemAsync(API_KEY_STORAGE)) ?? '';
+}
+
+async function saveApiKey(key: string) {
+  if (key) await SecureStore.setItemAsync(API_KEY_STORAGE, key);
+  else await SecureStore.deleteItemAsync(API_KEY_STORAGE);
+}
+
+// Scheme, host and port, normalised the way the WebView reports URLs.
+// React Native's URL class works these out with loose regexes, so this does it
+// by hand. A URL carrying user info is never treated as the server.
+function originOf(url: string): string | null {
+  const match = url.match(/^(https?):\/\/([^/?#\\]*)/i);
+  if (!match || match[2].includes('@')) return null;
+  const scheme = match[1].toLowerCase();
+  const defaultPort = scheme === 'https' ? ':443' : ':80';
+  let authority = match[2].toLowerCase();
+  if (authority.endsWith(defaultPort)) authority = authority.slice(0, -defaultPort.length);
+  return authority ? `${scheme}://${authority}` : null;
+}
 
 // ─── Theme ───────────────────────────────────────────────────────────────
 const themes = {
@@ -232,7 +264,9 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [webViewError, setWebViewError] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
-  const webViewRef = useRef<WebView>(null);
+  // react-native-webview 14 defaults its type parameter to undefined, which turns
+  // every prop into never under TypeScript 6. Passing object sidesteps it.
+  const webViewRef = useRef<WebView<object>>(null);
 
   const theme = themes[colorScheme] as typeof themes.dark;
 
@@ -250,11 +284,11 @@ export default function App() {
       try {
         const [savedUrl, savedKey] = await Promise.all([
           AsyncStorage.getItem(STORAGE_KEY),
-          AsyncStorage.getItem(API_KEY_STORAGE),
+          loadApiKey(),
         ]);
         if (savedUrl) {
           setServerUrl(savedUrl);
-          setApiKey(savedKey || '');
+          setApiKey(savedKey);
         }
       } catch {} finally {
         setLoading(false);
@@ -264,7 +298,7 @@ export default function App() {
 
   const handleConnect = useCallback(async (url: string, key: string) => {
     await AsyncStorage.setItem(STORAGE_KEY, url);
-    await AsyncStorage.setItem(API_KEY_STORAGE, key);
+    await saveApiKey(key);
     setServerUrl(url);
     setApiKey(key);
   }, []);
@@ -279,7 +313,8 @@ export default function App() {
           text: 'Disconnect',
           style: 'destructive',
           onPress: async () => {
-            await AsyncStorage.multiRemove([STORAGE_KEY, API_KEY_STORAGE]);
+            await AsyncStorage.removeItem(STORAGE_KEY);
+            await SecureStore.deleteItemAsync(API_KEY_STORAGE);
             setServerUrl(null);
             setApiKey('');
             setWebViewError(false);
@@ -295,32 +330,40 @@ export default function App() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }, []);
 
-  // Inject API key header and theme preference
+  // Injected before the dashboard's own scripts run, so its first requests carry
+  // the key. Adds the API key to every fetch the dashboard makes to its own
+  // server, whether it passes a string, a URL or a Request; the caller's init
+  // object is copied, never changed. Once the page is parsed it matches the
+  // app's theme and makes sure there is a mobile viewport. Everything goes in
+  // here because injectedJavaScript never ran on iOS with react-native-webview 14.
   const injectedJS = `
     (function() {
-      // Intercept all fetch calls to inject API key
       window.__HOMELABARR_API_KEY = ${JSON.stringify(apiKey)};
       if (window.__HOMELABARR_API_KEY && !window.__fetchPatched) {
-        const originalFetch = window.fetch;
-        window.fetch = function(url, options = {}) {
-          if (typeof url === 'string' && (url.startsWith('/') || url.startsWith(window.location.origin))) {
-            options.headers = options.headers || {};
-            if (options.headers instanceof Headers) {
-              if (!options.headers.has('Authorization')) {
-                options.headers.set('Authorization', 'Bearer ' + window.__HOMELABARR_API_KEY);
-              }
-            } else {
-              if (!options.headers['Authorization']) {
-                options.headers['Authorization'] = 'Bearer ' + window.__HOMELABARR_API_KEY;
-              }
-            }
+        const originalFetch = window.fetch.bind(window);
+        window.fetch = function(input, init) {
+          const isRequest = input instanceof Request;
+          let target;
+          try {
+            target = new URL(isRequest ? input.url : String(input), window.location.href);
+          } catch (e) {
+            return originalFetch(input, init);
           }
-          return originalFetch.call(this, url, options);
+          if (target.origin !== window.location.origin) return originalFetch(input, init);
+
+          const headers = new Headers(
+            init && init.headers !== undefined ? init.headers : isRequest ? input.headers : undefined
+          );
+          if (!headers.has('Authorization')) {
+            headers.set('Authorization', 'Bearer ' + window.__HOMELABARR_API_KEY);
+          }
+          return originalFetch(input, Object.assign({}, init, { headers }));
         };
         window.__fetchPatched = true;
       }
-      
-      // Try to match mobile theme with app theme
+    })();
+
+    document.addEventListener('DOMContentLoaded', function() {
       const prefersDark = ${colorScheme === 'dark'};
       const themeToggle = document.querySelector('[data-theme-toggle]') || 
                           document.querySelector('button[title*="theme"]') ||
@@ -340,9 +383,8 @@ export default function App() {
         meta.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
         document.head.appendChild(meta);
       }
-      
-      true;
-    })();
+    });
+    true;
   `;
 
   if (loading) {
@@ -413,11 +455,11 @@ export default function App() {
           </TouchableOpacity>
         </View>
       ) : (
-        <WebView
+        <WebView<object>
           ref={webViewRef}
           source={{ uri: serverUrl }}
           style={{ flex: 1, backgroundColor: theme.bg }}
-          injectedJavaScript={injectedJS}
+          injectedJavaScriptBeforeContentLoaded={injectedJS}
           onNavigationStateChange={(navState) => {
             setCanGoBack(navState.canGoBack);
           }}
@@ -441,10 +483,10 @@ export default function App() {
           )}
           onShouldStartLoadWithRequest={(request) => {
             // Open external links in system browser
+            const origin = originOf(request.url);
             if (
-              request.url.startsWith(serverUrl) ||
-              request.url.startsWith('about:') ||
-              request.url === 'about:blank'
+              (origin !== null && origin === originOf(serverUrl)) ||
+              request.url.startsWith('about:')
             ) {
               return true;
             }
@@ -479,10 +521,6 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 24,
-    marginBottom: 12,
-  },
-  logoEmoji: {
-    fontSize: 64,
     marginBottom: 12,
   },
   title: {
@@ -584,7 +622,7 @@ const styles = StyleSheet.create({
 
   // Loading
   loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
   },
