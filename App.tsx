@@ -17,12 +17,31 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { WebView } from 'react-native-webview';
 import * as Haptics from 'expo-haptics';
 
 // ─── Constants ───────────────────────────────────────────────────────────
 const STORAGE_KEY = '@homelabarr_server';
-const API_KEY_STORAGE = '@homelabarr_apikey';
+// The API key lives in the keychain. Older builds kept it in AsyncStorage
+// under the legacy key, so it is moved across on first launch.
+const API_KEY_STORAGE = 'homelabarr_apikey';
+const LEGACY_API_KEY_STORAGE = '@homelabarr_apikey';
+
+async function loadApiKey(): Promise<string> {
+  const legacyKey = await AsyncStorage.getItem(LEGACY_API_KEY_STORAGE);
+  if (legacyKey !== null) {
+    if (legacyKey) await SecureStore.setItemAsync(API_KEY_STORAGE, legacyKey);
+    await AsyncStorage.removeItem(LEGACY_API_KEY_STORAGE);
+    return legacyKey;
+  }
+  return (await SecureStore.getItemAsync(API_KEY_STORAGE)) ?? '';
+}
+
+async function saveApiKey(key: string) {
+  if (key) await SecureStore.setItemAsync(API_KEY_STORAGE, key);
+  else await SecureStore.deleteItemAsync(API_KEY_STORAGE);
+}
 
 // ─── Theme ───────────────────────────────────────────────────────────────
 const themes = {
@@ -252,11 +271,11 @@ export default function App() {
       try {
         const [savedUrl, savedKey] = await Promise.all([
           AsyncStorage.getItem(STORAGE_KEY),
-          AsyncStorage.getItem(API_KEY_STORAGE),
+          loadApiKey(),
         ]);
         if (savedUrl) {
           setServerUrl(savedUrl);
-          setApiKey(savedKey || '');
+          setApiKey(savedKey);
         }
       } catch {} finally {
         setLoading(false);
@@ -266,7 +285,7 @@ export default function App() {
 
   const handleConnect = useCallback(async (url: string, key: string) => {
     await AsyncStorage.setItem(STORAGE_KEY, url);
-    await AsyncStorage.setItem(API_KEY_STORAGE, key);
+    await saveApiKey(key);
     setServerUrl(url);
     setApiKey(key);
   }, []);
@@ -281,7 +300,8 @@ export default function App() {
           text: 'Disconnect',
           style: 'destructive',
           onPress: async () => {
-            await AsyncStorage.multiRemove([STORAGE_KEY, API_KEY_STORAGE]);
+            await AsyncStorage.removeItem(STORAGE_KEY);
+            await SecureStore.deleteItemAsync(API_KEY_STORAGE);
             setServerUrl(null);
             setApiKey('');
             setWebViewError(false);
