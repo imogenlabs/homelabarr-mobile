@@ -4,7 +4,7 @@
 
 [![Download on the App Store](https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg)](https://apps.apple.com/us/app/homelabarr-mobile/id6761244772)
 
-Expo SDK 55 WebView wrapper around the existing HomelabARR CE dashboard (which is already mobile-responsive).
+Expo SDK 58 WebView wrapper around the existing HomelabARR CE dashboard (which is already mobile-responsive).
 
 ## Download
 
@@ -46,6 +46,8 @@ npx expo start
 ```
 
 Scan the QR code with Expo Go on your phone.
+
+`npm install` also applies `patches/expo-modules-jsi+58.0.21.patch`. Without it the iOS build fails on Xcode 26.2 and newer with "sending 'slot' risks causing data races" ([expo/expo#52754](https://github.com/expo/expo/issues/52754)). Delete the patch, and `patch-package` with it, once Expo ships a fix.
 
 ## Build
 
