@@ -27,7 +27,7 @@ The following are in scope:
 
 The following are out of scope:
 
-- Vulnerabilities in HomelabARR CE (report to smashingtags/homelabarr-ce)
+- Vulnerabilities in HomelabARR CE (report to [imogenlabs/homelabarr-ce](https://github.com/imogenlabs/homelabarr-ce/security))
 - Server-side issues on user-hosted instances
 - Jailbroken/rooted device exploits
 
