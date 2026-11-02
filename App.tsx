@@ -232,7 +232,9 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [webViewError, setWebViewError] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
-  const webViewRef = useRef<WebView>(null);
+  // react-native-webview 14 defaults its type parameter to undefined, which turns
+  // every prop into never under TypeScript 6. Passing object sidesteps it.
+  const webViewRef = useRef<WebView<object>>(null);
 
   const theme = themes[colorScheme] as typeof themes.dark;
 
@@ -413,7 +415,7 @@ export default function App() {
           </TouchableOpacity>
         </View>
       ) : (
-        <WebView
+        <WebView<object>
           ref={webViewRef}
           source={{ uri: serverUrl }}
           style={{ flex: 1, backgroundColor: theme.bg }}
@@ -584,7 +586,7 @@ const styles = StyleSheet.create({
 
   // Loading
   loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
   },
