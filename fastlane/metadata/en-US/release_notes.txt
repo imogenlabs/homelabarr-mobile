@@ -1,0 +1,7 @@
+Your API key is now kept in the iPhone and iPad keychain instead of plain app storage. If you already saved one, it moves over the first time you open the app.
+
+The dashboard now sends your API key with every request to your server, from the first one it makes.
+
+Only pages on your own server open inside the app. Any other link opens in Safari, including addresses made to look like your server.
+
+Built on the latest iOS tools.

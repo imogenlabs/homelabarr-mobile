@@ -6,6 +6,10 @@
 
 Expo SDK 58 WebView wrapper around the existing HomelabARR CE dashboard (which is already mobile-responsive).
 
+## Current version
+
+1.1.0. What changed is in `fastlane/metadata/en-US/release_notes.txt`.
+
 ## Download
 
 - **iOS**: [App Store](https://apps.apple.com/us/app/homelabarr-mobile/id6761244772) (live)
@@ -62,6 +66,17 @@ eas build:configure
 eas build --platform ios
 eas build --platform android
 ```
+
+## Store screenshots
+
+The App Store screenshots in `fastlane/screenshots/en-US` are the real app connected to the public demo (`https://demo.homelabarr.com`, `admin` / `admin`). Retake them on the iMac with Maestro, after a Release simulator build:
+
+```bash
+maestro --device <iPhone 17 Pro Max udid> test -e OUT=$PWD/out/iphone fastlane/maestro/iphone.yaml
+maestro --device <iPad Pro 13-inch udid> test -e OUT=$PWD/out/ipad fastlane/maestro/ipad.yaml
+```
+
+Set the status bar first: `xcrun simctl status_bar <udid> override --time 9:41 --batteryState charged --batteryLevel 100`.
 
 ## Releases in Jira
 
